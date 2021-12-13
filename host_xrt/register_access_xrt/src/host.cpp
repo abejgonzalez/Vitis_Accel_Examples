@@ -17,6 +17,7 @@
 #include "cmdlineparser.h"
 #include <iostream>
 #include <cstring>
+#include <chrono>
 
 // XRT includes
 #include "experimental/xrt_bo.h"
@@ -70,7 +71,19 @@ int main(int argc, char** argv) {
     // Write the input data using write_register
     auto write_offset = krnl.offset(2);
     std::cout << "The input write data : " << write_data << "\n";
-    krnl.write_register(write_offset, write_data);
+
+    auto start = std::chrono::high_resolution_clock::now();
+    auto stop = std::chrono::high_resolution_clock::now();
+    auto duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+
+    for (int i = 0; i < 10; ++i) {
+        start = std::chrono::high_resolution_clock::now();
+        krnl.write_register(write_offset, write_data);
+        stop = std::chrono::high_resolution_clock::now();
+
+        duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+        std::cout << "Write Time (nsec):" << duration.count() << std::endl;
+    }
 
     std::cout << "Execution of the kernel\n";
     auto run = krnl(bo0, DATA_SIZE, write_data, read_data);
@@ -78,7 +91,14 @@ int main(int argc, char** argv) {
 
     // Read the output using read_register
     auto read_offset = krnl.offset(3);
-    read_data = krnl.read_register(read_offset);
+    for (int i = 0; i < 10; ++i) {
+        start = std::chrono::high_resolution_clock::now();
+        read_data = krnl.read_register(read_offset);
+        stop = std::chrono::high_resolution_clock::now();
+
+        duration = std::chrono::duration_cast<std::chrono::nanoseconds>(stop - start);
+        std::cout << "Read Time (nsec):" << duration.count() << std::endl;
+    }
 
     std::cout << "The output read data : " << read_data << "\n";
     std::cout << "TEST PASSED\n";
