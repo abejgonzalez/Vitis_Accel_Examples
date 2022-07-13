@@ -47,7 +47,9 @@ int main(int argc, char** argv) {
     std::cout << "Open the device" << device_index << std::endl;
     auto device = xrt::device(device_index);
     std::cout << "Load the xclbin " << binaryFile << std::endl;
-    auto uuid = device.load_xclbin(binaryFile);
+    //auto uuid = device.load_xclbin(binaryFile);
+    auto uuid = device.get_xclbin_uuid();
+    std::cout << "UUID " << uuid.to_string() << std::endl;
 
     size_t vector_size_bytes = sizeof(int) * DATA_SIZE;
 
